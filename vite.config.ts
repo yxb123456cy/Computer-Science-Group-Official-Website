@@ -14,6 +14,13 @@ export default defineConfig({
     vueDevTools(),
     viteCompression(),
   ],
+  css: {
+    preprocessorOptions: {
+      less: {
+
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
