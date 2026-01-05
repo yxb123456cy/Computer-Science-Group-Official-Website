@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import viteCompression from 'vite-plugin-compression';
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
@@ -11,6 +12,7 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
+    viteCompression()
   ],
   resolve: {
     alias: {
