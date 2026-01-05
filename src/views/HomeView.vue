@@ -216,7 +216,7 @@ const techStack = ref([
     <section class="section-container bg-gray">
       <div class="container quick-entry">
         <div v-for="(item, index) in quickEntries" :key="index" class="entry-item">
-          <a-button type="outline" size="large" class="entry-btn" long @click="router.push(item.path)">
+          <a-button type="primary" size="large" class="entry-btn" long @click="router.push(item.path)">
             {{ item.label }}
             <template #icon>
               <component :is="item.icon" />
@@ -456,12 +456,12 @@ const techStack = ref([
   background-image: linear-gradient(-225deg, #fffeff 0%, #d7fffe 100%);
 }
 
-.entry-btn {
-  padding-left: 25px;
-  padding-right: 25px;
-  color: black !important;
-  background-image: linear-gradient(-225deg, #fffeff 0%, #d7fffe 100%);
-}
+// .entry-btn {
+//   padding-left: 25px;
+//   padding-right: 25px;
+//   color: black !important;
+//   background-image: linear-gradient(-225deg, #fffeff 0%, #d7fffe 100%);
+// }
 
 /* Tech Stack */
 .tech-grid {

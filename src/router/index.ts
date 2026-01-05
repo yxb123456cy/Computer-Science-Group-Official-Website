@@ -61,7 +61,7 @@ const router = createRouter({
     {
       path: '/competition',
       name: 'competition',
-      component: ComingSoon,
+      component: () => import('../views/CompetitionCenter.vue'),
     },
     {
       path: '/tool',
