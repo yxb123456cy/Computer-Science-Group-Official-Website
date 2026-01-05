@@ -1,8 +1,8 @@
 {
   "name": "computer-science-group-official-website",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
@@ -19,7 +19,9 @@
     "test:unit": "vitest",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "dependencies": {
     "pinia": "^3.0.4",
@@ -27,6 +29,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^6.7.3",
     "@tsconfig/node24": "^24.0.3",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.10.4",
@@ -35,6 +38,8 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "cz-git": "^1.12.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-format": "^1.1.0",
     "jsdom": "^27.3.0",
     "npm-run-all2": "^8.0.4",
     "typescript": "~5.9.3",
