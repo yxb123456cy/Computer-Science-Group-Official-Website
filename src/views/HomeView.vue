@@ -24,6 +24,7 @@ import SpringBootIcon from '@/assets/svg/springboot.svg'
 import TSIcon from '@/assets/svg/typescript.svg'
 import VercelIcon from '@/assets/svg/vercel.svg'
 import ViteIcon from '@/assets/svg/vite.svg'
+import VitestIcon from '@/assets/svg/vitest.svg'
 import VueIcon from '@/assets/svg/Vue.svg'
 import VueUseIcon from '@/assets/svg/VueUse.svg'
 
@@ -146,7 +147,7 @@ const techStack = ref([
   {
     name: 'Vitest',
     desc: '一个开源测试框架',
-    icon: ViteIcon,
+    icon: VitestIcon,
   },
   {
     name: 'Spring Boot',
