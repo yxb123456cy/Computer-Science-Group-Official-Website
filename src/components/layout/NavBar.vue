@@ -43,6 +43,12 @@ const activeKey = computed(() => {
           <a-menu-item key="resources" @click="router.push('/resources')">
             资源导航
           </a-menu-item>
+          <a-menu-item key="competition" @click="router.push('/competition')">
+            竞赛大全
+          </a-menu-item>
+          <a-menu-item key="tool" @click="router.push('/tool')">
+            在线工具
+          </a-menu-item>
           <a-menu-item key="contact" @click="router.push('/contact')">
             联系我们
           </a-menu-item>

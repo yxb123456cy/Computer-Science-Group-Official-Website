@@ -12,6 +12,8 @@ const title = computed(() => {
     resources: '资源导航',
     contact: '联系我们',
     news: '近期动态',
+    competition: '竞赛大全',
+    tool: '在线工具',
   }
   const key = route.path.substring(1)
   return map[key] || 'Coming Soon'

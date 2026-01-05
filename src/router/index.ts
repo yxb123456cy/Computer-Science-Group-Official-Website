@@ -58,6 +58,16 @@ const router = createRouter({
       name: 'news',
       component: ComingSoon,
     },
+    {
+      path: '/competition',
+      name: 'competition',
+      component: ComingSoon,
+    },
+    {
+      path: '/tool',
+      name: 'tool',
+      component: ComingSoon,
+    },
     // 404
     {
       path: '/:pathMatch(.*)*',
