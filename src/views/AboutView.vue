@@ -1,15 +1,9 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div class="container" style="padding: 60px 20px;">
+    <h1>关于我们</h1>
+    <p>计算机科技小组成立于2022年...</p>
   </div>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
+<style scoped>
 </style>

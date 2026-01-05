@@ -1,0 +1,48 @@
+:root {
+  --primary-color: #165dff;
+  --bg-color: #f2f3f5;
+  --text-color: #1d2129;
+  --text-secondary: #4e5969;
+  --text-tertiary: #86909c;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Arco Design Override if needed */
+body[arco-theme='dark'] {
+  --bg-color: #232324;
+}
