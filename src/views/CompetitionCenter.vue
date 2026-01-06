@@ -5,7 +5,7 @@ import {
   IconTrophy,
   IconUserGroup,
 } from '@arco-design/web-vue/es/icon'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import ICPC from '@/assets/competition/ICPC.webp'
 import BridgeCompetition from '@/assets/competition/蓝桥杯.png'
 import DesignCompetition from '@/assets/competition/计算机设计大赛.png'
@@ -64,6 +64,35 @@ const competitions: Competition[] = [
 
 const visible = ref(false)
 const currentCompetition = reactive<Partial<Competition>>({})
+const searchQuery = ref('')
+const activeCategory = ref('全部')
+
+const categories = ['全部', '算法竞赛', '项目开发', '大数据/AI', '数学建模']
+
+const filteredCompetitions = computed(() => {
+  return competitions.filter((comp) => {
+    // 1. Search Filter
+    const matchSearch = comp.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+      || comp.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+
+    if (!matchSearch)
+      return false
+
+    // 2. Category Filter
+    if (activeCategory.value === '全部')
+      return true
+    if (activeCategory.value === '算法竞赛')
+      return comp.tags.includes('算法')
+    if (activeCategory.value === '项目开发')
+      return comp.tags.some(t => ['全栈', '小程序', '前端', 'Web', '创新'].includes(t))
+    if (activeCategory.value === '大数据/AI')
+      return comp.tags.some(t => ['AI', '大数据', '机器学习'].includes(t))
+    if (activeCategory.value === '数学建模')
+      return comp.tags.includes('数模')
+
+    return false
+  })
+})
 
 function openDetails(comp: Competition) {
   Object.assign(currentCompetition, comp)
@@ -94,21 +123,40 @@ function openOfficialSite(url: string) {
       </p>
     </div>
 
-    <div class="competition-list">
-      <div v-for="comp in competitions" :key="comp.id" class="competition-item">
+    <!-- Filter & Search -->
+    <div class="filter-section">
+      <div class="category-tabs">
+        <a-radio-group v-model="activeCategory" type="button" size="large">
+          <a-radio v-for="cat in categories" :key="cat" :value="cat">
+            {{ cat }}
+          </a-radio>
+        </a-radio-group>
+      </div>
+      <div class="search-box">
+        <a-input-search
+          v-model="searchQuery"
+          placeholder="搜索竞赛..."
+          style="width: 260px;background-color: snow;"
+          allow-clear
+        />
+      </div>
+    </div>
+
+    <div v-if="filteredCompetitions.length > 0" class="competition-list">
+      <div v-for="comp in filteredCompetitions" :key="comp.id" class="competition-item compact">
         <div class="item-cover" :style="{ backgroundImage: `url(${comp.image})` }" />
         <div class="item-content">
           <div class="content-header">
             <h2 class="item-title">
               {{ comp.title }}
             </h2>
-            <a-tag color="#6495ED" class="level-tag">
+            <a-tag color="orangered" size="small" class="level-tag">
               {{ comp.level }}
             </a-tag>
           </div>
 
           <div class="tags-row">
-            <a-tag v-for="tag in comp.tags" :key="tag" size="small" color="#3CB371" class="tag-item">
+            <a-tag v-for="tag in comp.tags" :key="tag" size="small" color="arcoblue" class="tag-item">
               {{ tag }}
             </a-tag>
           </div>
@@ -129,20 +177,24 @@ function openOfficialSite(url: string) {
           </div>
         </div>
         <div class="item-actions">
-          <a-button type="primary" class="action-btn" @click="openOfficialSite(comp.url)">
+          <a-button type="primary" size="small" class="action-btn" @click="openOfficialSite(comp.url)">
             <template #icon>
               <IconLink />
             </template>
-            查看官网
+            官网
           </a-button>
-          <a-button class="action-btn" @click="openDetails(comp)">
+          <a-button size="small" class="action-btn" @click="openDetails(comp)">
             <template #icon>
               <IconTrophy />
             </template>
-            查看详情
+            详情
           </a-button>
         </div>
       </div>
+    </div>
+
+    <div v-else class="empty-state">
+      <a-empty description="暂无相关竞赛数据" />
     </div>
 
     <a-drawer
@@ -160,7 +212,7 @@ function openOfficialSite(url: string) {
       <div class="drawer-content">
         <div class="info-item">
           <span class="label">竞赛级别：</span>
-          <a-tag color="#6495ED">
+          <a-tag color="orangered">
             {{ currentCompetition.level }}
           </a-tag>
         </div>
@@ -178,7 +230,7 @@ function openOfficialSite(url: string) {
           <p>{{ currentCompetition.details }}</p>
         </div>
         <a-divider />
-        <a-button type="primary" round long @click="currentCompetition.url && openOfficialSite(currentCompetition.url)">
+        <a-button type="primary" long @click="currentCompetition.url && openOfficialSite(currentCompetition.url)">
           前往官网报名
         </a-button>
       </div>
@@ -194,13 +246,24 @@ function openOfficialSite(url: string) {
 
 .header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
 
   .page-title {
-    font-size: 36px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--color-text-1);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    position: relative;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 6px;
+      background: var(--primary-color);
+      margin: 10px auto 0;
+      border-radius: 3px;
+    }
   }
 
   .page-desc {
@@ -209,18 +272,39 @@ function openOfficialSite(url: string) {
   }
 }
 
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    .search-box {
+      width: 100%;
+      :deep(.arco-input-wrapper) {
+        width: 100% !important;
+      }
+    }
+  }
+}
+
 .competition-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .competition-item {
   display: flex;
   background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  gap: 24px;
+  border-radius: 8px;
+  padding: 16px;
+  gap: 20px;
   transition: all 0.3s;
   border: 1px solid var(--color-border-2);
 
@@ -236,17 +320,17 @@ function openOfficialSite(url: string) {
 }
 
 .item-cover {
-  width: 280px;
-  height: 180px;
+  width: 200px;
+  height: 120px;
   background-size: cover;
   background-position: center;
-  border-radius: 8px;
+  border-radius: 6px;
   flex-shrink: 0;
   background-color: var(--color-fill-2);
 
   @media (max-width: 768px) {
     width: 100%;
-    height: 200px;
+    height: 160px;
   }
 }
 
@@ -254,18 +338,19 @@ function openOfficialSite(url: string) {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; // Prevent flex item overflow
+  min-width: 0;
+  justify-content: space-between;
 }
 
 .content-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 
   .item-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--color-text-1);
     margin: 0;
@@ -276,15 +361,15 @@ function openOfficialSite(url: string) {
 .tags-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .item-desc {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-3);
-  line-height: 1.6;
-  margin-bottom: auto;
+  line-height: 1.5;
+  margin-bottom: 8px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   line-clamp: 2;
@@ -293,18 +378,17 @@ function openOfficialSite(url: string) {
 
 .meta-row {
   display: flex;
-  gap: 24px;
-  margin-top: 16px;
+  gap: 16px;
   color: var(--color-text-3);
-  font-size: 14px;
+  font-size: 12px;
 
   .meta-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 
     .icon {
-      font-size: 16px;
+      font-size: 14px;
     }
   }
 }
@@ -312,23 +396,29 @@ function openOfficialSite(url: string) {
 .item-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   justify-content: center;
-  min-width: 120px;
+  min-width: 100px;
   border-left: 1px solid var(--color-border-1);
-  padding-left: 24px;
+  padding-left: 20px;
 
   @media (max-width: 768px) {
     flex-direction: row;
     border-left: none;
     padding-left: 0;
-    padding-top: 16px;
+    padding-top: 12px;
     border-top: 1px solid var(--color-border-1);
   }
 
   .action-btn {
     width: 100%;
   }
+}
+
+.empty-state {
+  padding: 60px 0;
+  display: flex;
+  justify-content: center;
 }
 
 .drawer-content {
