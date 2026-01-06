@@ -5,7 +5,9 @@ import {
   IconPhone,
   IconUserGroup,
 } from '@arco-design/web-vue/es/icon'
-
+import team1 from '@/assets/svg/team1.svg'
+import team2 from '@/assets/svg/team2.svg'
+import team3 from '@/assets/svg/team3.svg'
 // Mock Data
 const introText = `计算机科技小组隶属于计算机学部实验中心，配有两间学生创新实验室，活动场所达近千平米，仪器设备齐全。在计算机学部团总支、学生会领导下，开展科技创新比赛，组织我院学生积极学习相关竞赛知识。`
 
@@ -60,16 +62,16 @@ const historyEvents = [
 
 const honors = [
   {
-    title: '2023年度优秀社团',
-    image: 'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/a8c8cd8f09e234970406ca44d864147c.png~tplv-uwbnlip3yd-webp.webp',
+    title: '校级优秀学生组织',
+    image: team1,
   },
   {
     title: '蓝桥杯优秀组织奖',
-    image: 'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/e278888093bef8910e829486fb45dd69.png~tplv-uwbnlip3yd-webp.webp',
+    image: team2,
   },
   {
-    title: '校企合作示范基地',
-    image: 'https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f13fb09879ecb5185e440cef6eb9.png~tplv-uwbnlip3yd-webp.webp',
+    title: '竞赛获奖优秀组织',
+    image: team3,
   },
 ]
 </script>
@@ -153,7 +155,7 @@ const honors = [
               :description="honor.title"
               width="100%"
               height="240px"
-              fit="cover"
+              fit="contain"
               class="honor-image"
               footer-position="outer"
             />
@@ -182,12 +184,28 @@ const honors = [
 
 .page-title {
   text-align: center;
-  font-size: 42px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--color-text-1);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   position: relative;
+  &::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 6px;
+    background: var(--primary-color);
+    margin: 10px auto 0;
+    border-radius: 3px;
+  }
+}
 
+.section-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-text-1);
+  margin-bottom: 12px;
   &::after {
     content: '';
     display: block;
@@ -197,14 +215,6 @@ const honors = [
     margin: 20px auto 0;
     border-radius: 3px;
   }
-}
-
-.section-title {
-  text-align: center;
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 25px;
-  color: var(--color-text-1);
 }
 
 /* Intro */
@@ -238,12 +248,13 @@ const honors = [
 
 .dept-card {
   border-radius: 18px;
-  border: none;
+  border: 1px solid transparent;
   transition: all 0.3s;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .dept-content {
@@ -353,10 +364,11 @@ const honors = [
   padding: 20px;
   border-radius: 12px;
   transition: all 0.3s;
-
+  border: 1px solid transparent;
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   :deep(.arco-image) {
