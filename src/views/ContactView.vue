@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   IconEmail,
-
   IconGithub,
   IconMessage,
   IconQq,
@@ -34,29 +33,28 @@ const contactInfo = [
   {
     icon: IconEmail,
     label: '官方邮箱',
-    value: 'contact@cs-group.edu.cn',
-    action: 'mailto:contact@cs-group.edu.cn',
+    value: '暂无',
+    action: '',
   },
-
 ]
 
 const socialMedia = [
   {
     icon: IconQq,
     name: '官方QQ群',
-    desc: '123456789',
+    desc: '暂无',
     color: '#12b7f5',
   },
   {
     icon: IconWechat,
     name: '微信公众号',
-    desc: 'CS_Group_Official',
+    desc: '暂无',
     color: '#07c160',
   },
   {
     icon: IconGithub,
     name: 'GitHub',
-    desc: '@CS-Group',
+    desc: '暂无',
     color: '#333',
   },
 ]
@@ -172,10 +170,22 @@ const socialMedia = [
   margin-bottom: 50px;
 
   .page-title {
-    font-size: 36px;
-    font-weight: 700;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--color-text-1);
     margin-bottom: 12px;
+    position: relative;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 6px;
+      background: var(--primary-color);
+      margin: 10px auto 0;
+      border-radius: 3px;
+    }
   }
 
   .page-desc {
