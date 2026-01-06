@@ -1,9 +1,9 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import ComingSoon from '../views/ComingSoon.vue'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
@@ -46,7 +46,7 @@ const router = createRouter({
     {
       path: '/resources',
       name: 'resources',
-      component: ComingSoon,
+      component: () => import('../views/ResourcesView.vue'),
     },
     {
       path: '/contact',
@@ -66,7 +66,7 @@ const router = createRouter({
     {
       path: '/tool',
       name: 'tool',
-      component: ComingSoon,
+      component: () => import('../views/OnlineToolsView.vue'),
     },
     // 404
     {
