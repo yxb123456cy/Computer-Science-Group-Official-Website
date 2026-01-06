@@ -452,8 +452,6 @@ const techStack = ref([
 .hero-btn {
   padding-left: 25px;
   padding-right: 25px;
-  color: black !important;
-  background-image: linear-gradient(-225deg, #fffeff 0%, #d7fffe 100%);
 }
 
 // .entry-btn {

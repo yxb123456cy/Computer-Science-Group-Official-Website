@@ -26,22 +26,22 @@ const router = createRouter({
     {
       path: '/activities',
       name: 'activities',
-      component: ComingSoon,
+      component: () => import('../views/ActivitiesView.vue'),
     },
     {
       path: '/projects',
       name: 'projects',
-      component: ComingSoon,
+      component: () => import('../views/ProjectsView.vue'),
     },
     {
       path: '/members',
       name: 'members',
-      component: ComingSoon,
+      component: () => import('../views/MembersView.vue'),
     },
     {
       path: '/join',
       name: 'join',
-      component: ComingSoon,
+      component: () => import('../views/JoinUsView.vue'),
     },
     {
       path: '/resources',
@@ -51,7 +51,7 @@ const router = createRouter({
     {
       path: '/contact',
       name: 'contact',
-      component: ComingSoon,
+      component: () => import('../views/ContactView.vue'),
     },
     {
       path: '/news',

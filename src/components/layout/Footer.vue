@@ -32,7 +32,6 @@
 
 <style scoped lang="less">
 .footer {
-  background-image: linear-gradient(-225deg, #fffeff 0%, #d7fffe 100%);
   color: black;
   padding: 20px 0;
   margin-top: auto;
@@ -71,10 +70,9 @@
   font-size: 16px;
   font-weight: 400;
   :deep(.arco-link) {
-    color: black;
-    transition: all 0.5s;
+    transition: all 0.3s;
     &:hover {
-      background-image: linear-gradient(-225deg, #fffeff 0%, #d7fffe 100%);
+      text-decoration: underline;
     }
   }
 }
