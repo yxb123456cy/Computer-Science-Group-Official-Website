@@ -21,6 +21,9 @@ interface Competition {
   url: string
   details: string
   tags: string[]
+  difficulty?: string
+  recommendMajor?: string
+  value?: string
 }
 
 const competitions: Competition[] = [
@@ -35,6 +38,9 @@ const competitions: Competition[] = [
     url: 'https://icpc.global/',
     details: 'ICPC 竞赛形式为团队赛，每队由 3 名队员组成。比赛期间，参赛队伍需要在 5 小时内解决 10-13 道算法题目。题目内容涵盖算法、数据结构、数学等多个领域。比赛强调团队协作、算法设计和编程实现能力。',
     tags: ['算法', '团队', 'C/C++', 'Java', 'Python'],
+    difficulty: '⭐⭐⭐⭐⭐',
+    recommendMajor: '计算机/软件',
+    value: '⭐⭐⭐⭐⭐',
   },
   {
     id: 2,
@@ -47,6 +53,9 @@ const competitions: Competition[] = [
     url: 'https://dasai.lanqiao.cn/',
     details: '蓝桥杯大赛分为个人赛和团队赛，涵盖 C/C++ 程序设计、Java 软件开发、Python 程序设计、Web 应用开发等多个科目。比赛注重基础编程能力和算法应用能力，是国内参与人数最多的计算机竞赛之一。',
     tags: ['算法', '个人', 'Java', 'C/C++', 'Python', 'Web'],
+    difficulty: '⭐⭐⭐',
+    recommendMajor: '计算机相关',
+    value: '⭐⭐⭐⭐',
   },
   {
     id: 3,
@@ -59,6 +68,9 @@ const competitions: Competition[] = [
     url: 'http://jsjds.blcu.edu.cn/',
     details: '大赛作品内容分为软件应用与开发、微课与教学辅助、物联网应用、大数据应用、人工智能应用等多个类别。比赛形式为作品提交 + 现场答辩，强调创新能力和实际应用能力。',
     tags: ['创新', '项目', '答辩', '全栈'],
+    difficulty: '⭐⭐⭐',
+    recommendMajor: '不限',
+    value: '⭐⭐⭐⭐',
   },
 ]
 
@@ -210,26 +222,58 @@ function openOfficialSite(url: string) {
         {{ currentCompetition.title }}
       </template>
       <div class="drawer-content">
-        <div class="info-item">
-          <span class="label">竞赛级别：</span>
-          <a-tag color="orangered">
-            {{ currentCompetition.level }}
-          </a-tag>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">竞赛级别：</span>
+            <a-tag color="orangered">
+              {{ currentCompetition.level }}
+            </a-tag>
+          </div>
+          <div class="info-item">
+            <span class="label">难度：</span>
+            <span class="value">{{ currentCompetition.difficulty || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">主办单位：</span>
+            <span class="value">{{ currentCompetition.organizer }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">推荐专业：</span>
+            <span class="value">{{ currentCompetition.recommendMajor || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">举办时间：</span>
+            <span class="value"><IconCalendar /> {{ currentCompetition.time }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">含金量：</span>
+            <span class="value" style="color: #FFB400;">{{ currentCompetition.value || '-' }}</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="label">主办单位：</span>
-          <span class="value">{{ currentCompetition.organizer }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">举办时间：</span>
-          <span class="value"><IconCalendar /> {{ currentCompetition.time }}</span>
-        </div>
+
         <a-divider />
+
         <div class="details-text">
           <h3>竞赛详情</h3>
           <p>{{ currentCompetition.details }}</p>
         </div>
+
+        <div class="tags-section">
+          <h3>相关标签</h3>
+          <div class="tags-row">
+            <a-tag v-for="tag in currentCompetition.tags" :key="tag" color="arcoblue">
+              {{ tag }}
+            </a-tag>
+          </div>
+        </div>
+
         <a-divider />
+
+        <div class="official-link-box">
+          <span class="label">官网链接: </span>
+          <a :href="currentCompetition.url" target="_blank" class="link-text">{{ currentCompetition.url }}</a>
+        </div>
+
         <a-button type="primary" long @click="currentCompetition.url && openOfficialSite(currentCompetition.url)">
           前往官网报名
         </a-button>
@@ -240,7 +284,7 @@ function openOfficialSite(url: string) {
 
 <style scoped lang="less">
 .competition-center {
-  padding-top: 40px;
+  padding-top: 8px;
   padding-bottom: 60px;
 }
 
@@ -422,20 +466,31 @@ function openOfficialSite(url: string) {
 }
 
 .drawer-content {
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .info-item {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
     font-size: 15px;
 
     .label {
-      width: 80px;
+      flex-shrink: 0;
       color: var(--color-text-3);
+      margin-right: 8px;
     }
 
     .value {
       color: var(--color-text-1);
       font-weight: 500;
+      word-break: break-all;
     }
   }
 
@@ -449,6 +504,35 @@ function openOfficialSite(url: string) {
       color: var(--color-text-2);
       line-height: 1.6;
       text-align: justify;
+    }
+  }
+
+  .tags-section {
+    margin-top: 20px;
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--color-text-1);
+    }
+  }
+
+  .official-link-box {
+    margin-bottom: 12px;
+    font-size: 14px;
+
+    .label {
+      color: var(--color-text-3);
+    }
+
+    .link-text {
+      color: var(--primary-color);
+      text-decoration: none;
+      word-break: break-all;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }

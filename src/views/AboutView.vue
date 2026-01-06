@@ -175,7 +175,7 @@ const honors = [
 }
 
 .section-container {
-  padding: 40px 20px;
+  padding: 8px 20px;
 }
 
 .bg-gray {

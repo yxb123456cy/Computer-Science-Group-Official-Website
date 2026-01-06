@@ -161,7 +161,7 @@ const socialMedia = [
 
 <style scoped lang="less">
 .contact-view {
-  padding-top: 40px;
+  padding-top: 8px;
   padding-bottom: 60px;
 }
 
