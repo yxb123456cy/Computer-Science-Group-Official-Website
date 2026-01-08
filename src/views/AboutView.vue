@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import type { HistoryEvent } from '@/types/main'
 import {
   IconBulb,
   IconCode,
   IconPhone,
   IconUserGroup,
 } from '@arco-design/web-vue/es/icon'
+import { ref } from 'vue'
 import team1 from '@/assets/svg/team1.svg'
 import team2 from '@/assets/svg/team2.svg'
 import team3 from '@/assets/svg/team3.svg'
-// Mock Data
+
 const introText = `计算机科技小组隶属于计算机学部实验中心，配有两间学生创新实验室，活动场所达近千平米，仪器设备齐全。在计算机学部团总支、学生会领导下，开展科技创新比赛，组织我院学生积极学习相关竞赛知识。`
 
 const departments = [
@@ -42,23 +44,25 @@ const departments = [
   },
 ]
 
-const historyEvents = [
-  {
-    year: '2024',
-    title: '新增AI兴趣小组',
-    desc: '紧跟技术潮流，成立人工智能兴趣小组，探索大模型应用落地。',
-  },
-  {
-    year: '2023',
-    title: '获省级竞赛一等奖',
-    desc: '在“蓝桥杯”全国软件和信息技术专业人才大赛中斩获省级一等奖3项。',
-  },
-  {
-    year: '2022',
-    title: '社团正式成立',
-    desc: '由一群热爱计算机技术的学生自发组织成立，首批成员30人。',
-  },
-]
+const historyEvents = ref<HistoryEvent[]>(
+  [
+    {
+      year: '2024',
+      title: '新增AI兴趣小组',
+      desc: '紧跟技术潮流，成立人工智能兴趣小组，探索大模型应用落地。',
+    },
+    {
+      year: '2023',
+      title: '获省级竞赛一等奖',
+      desc: '在“蓝桥杯”全国软件和信息技术专业人才大赛中斩获省级一等奖3项。',
+    },
+    {
+      year: '2022',
+      title: '社团正式成立',
+      desc: '由一群热爱计算机技术的学生自发组织成立，首批成员30人。',
+    },
+  ],
+)
 
 const honors = [
   {
