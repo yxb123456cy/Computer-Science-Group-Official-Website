@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { HomeNew, Revolvinglantern } from '@/types/main'
 import {
   IconArrowRight,
   IconBook,
@@ -13,8 +14,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Back from '@/assets/images/back.png'
 import Code from '@/assets/images/code.png'
-import Python from '@/assets/images/python.png'
 
+import Python from '@/assets/images/python.png'
 import ArcoIcon from '@/assets/svg/arcoDesign.svg'
 import EChartsIcon from '@/assets/svg/ECharts.svg'
 import JavaIcon from '@/assets/svg/java.svg'
@@ -30,7 +31,7 @@ import VueUseIcon from '@/assets/svg/VueUse.svg'
 
 const router = useRouter()
 
-const carouselItems = ref([
+const carouselItems = ref<Revolvinglantern[]>([
   {
     title: '以技术赋能兴趣，以实战提升能力',
     desc: '加入我们，探索计算机科学的无限可能',
@@ -77,7 +78,7 @@ const quickEntries = ref([
   { label: '浏览成果', path: '/projects', icon: IconBook },
 ])
 
-const newsList = ref([
+const newsList = ref<HomeNew[]>([
   {
     title: '2024秋季招新正式启动',
     date: '2024-09-01',
