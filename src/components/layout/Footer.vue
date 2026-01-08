@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 </script>
 
 <template>
@@ -23,6 +26,9 @@
           </a-link>
           <a-link href="#">
             联系我们
+          </a-link>
+          <a-link @click="() => { router.push('/admin/login') }">
+            后台管理
           </a-link>
         </div>
       </div>

@@ -24,7 +24,7 @@ async function handleSubmit() {
   setTimeout(() => {
     loading.value = false
     if (form.username === 'admin' && form.password === 'admin') {
-      router.push('/')
+      router.push('/admin')
     }
     else {
       errorMessage.value = '用户名或密码错误 (默认 admin/admin)'
