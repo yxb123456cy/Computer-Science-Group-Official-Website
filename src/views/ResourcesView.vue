@@ -9,7 +9,7 @@ import {
   IconDownload,
   IconDriveFile,
 } from '@arco-design/web-vue/es/icon'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 // Import SVG assets
 import ApifoxIcon from '@/assets/resources/apifox.svg'
@@ -37,6 +37,9 @@ import VscodeIcon from '@/assets/resources/vscode.svg'
 import WindowsIcon from '@/assets/resources/windows.svg'
 import RaspberryPiIcon from '@/assets/resources/嵌入式-Raspberry Pi.svg'
 
+type ResourceSource = '国内' | '国外'
+type PlatformName = 'Windows' | 'macOS' | 'Linux' | 'Web'
+
 interface Resource {
   title: string
   desc: string
@@ -44,6 +47,9 @@ interface Resource {
   iconUrl?: string
   url: string
   tags: string[]
+  source?: ResourceSource
+  platforms?: PlatformName[]
+  sizeMB?: number
 }
 
 const activeCategory = ref('ide')
@@ -270,6 +276,148 @@ const resources: Record<string, Resource[]> = {
   ],
 }
 
+const categoryResources = computed<Resource[]>(() => resources[activeCategory.value] || [])
+const categoryCount = computed(() => categoryResources.value.length)
+const categorySourceCount = computed(() => {
+  const acc = { domestic: 0, foreign: 0 }
+  categoryResources.value.forEach((r) => {
+    const s = getSource(r)
+    if (s === '国内')
+      acc.domestic += 1
+    else if (s === '国外')
+      acc.foreign += 1
+  })
+  return acc
+})
+const categoryTopTags = computed(() => {
+  const counter = new Map<string, number>()
+  categoryResources.value.forEach((r) => {
+    r.tags.forEach((t) => {
+      counter.set(t, (counter.get(t) || 0) + 1)
+    })
+  })
+  return [...counter.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([t]) => t)
+})
+
+const featuredResources = computed(() => categoryResources.value.slice(0, 3))
+const featuredTitles = computed(() => new Set(featuredResources.value.map(r => r.title)))
+const displayedResources = computed(() => categoryResources.value.filter(r => !featuredTitles.value.has(r.title)))
+
+const categoryDescMap: Record<string, string> = {
+  ide: '提升编码效率的核心工具，适合日常开发与学习。',
+  lang: '常见语言与运行环境，一键直达官方下载与文档。',
+  tools: '覆盖开发、调试、协作的高频工具合集。',
+  os: '开发常用操作系统与发行版，面向不同场景选择。',
+  server: '服务端基础设施与中间件，构建可靠线上环境。',
+  hardware: '创客与嵌入式相关硬件平台，适合动手实践。',
+  docs: '权威手册与指南，快速掌握关键流程与规范。',
+}
+
+const currentCategoryDesc = computed(() => categoryDescMap[activeCategory.value] || '精选优质资源，快速开始使用。')
+
+const quickSteps = computed(() => {
+  if (activeCategory.value === 'docs') {
+    return [
+      { title: '阅读指南', desc: '先通读整体流程与注意事项' },
+      { title: '准备材料', desc: '按要求准备邮箱/证明文件' },
+      { title: '提交申请', desc: '按步骤提交并等待审核结果' },
+    ]
+  }
+  if (activeCategory.value === 'os') {
+    return [
+      { title: '选择版本', desc: '根据硬件与用途选择发行版' },
+      { title: '制作介质', desc: '写入启动盘并完成安装' },
+      { title: '环境配置', desc: '配置开发工具与常用软件源' },
+    ]
+  }
+  return [
+    { title: '打开官网', desc: '确认版本与系统支持情况' },
+    { title: '下载安装', desc: '优先使用官方安装包/文档' },
+    { title: '完成配置', desc: '按需安装插件与初始化环境' },
+  ]
+})
+
+function safeHostname(url: string) {
+  try {
+    return new URL(url).hostname
+  }
+  catch {
+    return ''
+  }
+}
+
+function getSource(res: Partial<Resource>) {
+  if (res.source)
+    return res.source
+  if (!res.url)
+    return '-'
+  const host = safeHostname(res.url)
+  if (host.endsWith('.cn'))
+    return '国内'
+  return '国外'
+}
+
+function getPlatforms(res: Partial<Resource>): PlatformName[] {
+  if (res.platforms?.length)
+    return res.platforms
+  if (!res.url)
+    return ['Web']
+  const host = safeHostname(res.url)
+  if (!host)
+    return ['Web']
+  if (activeCategory.value === 'os') {
+    const title = (res.title || '').toLowerCase()
+    if (title.includes('windows'))
+      return ['Windows']
+    if (title.includes('mac'))
+      return ['macOS']
+    return ['Linux']
+  }
+  if (activeCategory.value === 'docs')
+    return ['Web']
+  return ['Windows', 'macOS', 'Linux']
+}
+
+function getPlatformIcon(p: PlatformName) {
+  if (p === 'Windows')
+    return WindowsIcon
+  if (p === 'macOS')
+    return MacosIcon
+  if (p === 'Linux')
+    return UbuntuIcon
+  return ''
+}
+
+function getEstimatedSizeMB(res: Partial<Resource>) {
+  if (typeof res.sizeMB === 'number')
+    return res.sizeMB
+  if (activeCategory.value === 'ide')
+    return 260
+  if (activeCategory.value === 'lang')
+    return 120
+  if (activeCategory.value === 'tools')
+    return 220
+  if (activeCategory.value === 'os')
+    return 2600
+  if (activeCategory.value === 'server')
+    return 80
+  if (activeCategory.value === 'hardware')
+    return 40
+  if (activeCategory.value === 'docs')
+    return 5
+  return 100
+}
+
+function formatSizeMB(res: Partial<Resource>) {
+  const v = getEstimatedSizeMB(res)
+  if (!Number.isFinite(v) || v <= 0)
+    return '-'
+  return `${Math.round(v)} MB`
+}
+
 function getCategoryTitle(key: string) {
   return categories.find(c => c.key === key)?.title || '资源列表'
 }
@@ -282,6 +430,12 @@ function openResource(res: Resource) {
 function handleDownload() {
   if (currentResource.url) {
     window.open(currentResource.url, '_blank')
+  }
+}
+
+function openResourceLink(res: Resource) {
+  if (res.url) {
+    window.open(res.url, '_blank')
   }
 }
 </script>
@@ -299,26 +453,97 @@ function handleDownload() {
 
     <div class="main-content">
       <!-- Sidebar Navigation -->
-      <a-affix :offset-top="100">
-        <div class="sidebar">
-          <div
-            v-for="cat in categories" :key="cat.key" class="nav-item" :class="{ active: activeCategory === cat.key }"
-            @click="activeCategory = cat.key"
-          >
-            <component :is="cat.icon" class="nav-icon" />
-            <span>{{ cat.title }}</span>
-          </div>
+      <div class="sidebar">
+        <div
+          v-for="cat in categories" :key="cat.key" class="nav-item" :class="{ active: activeCategory === cat.key }"
+          @click="activeCategory = cat.key"
+        >
+          <component :is="cat.icon" class="nav-icon" />
+          <span>{{ cat.title }}</span>
         </div>
-      </a-affix>
+      </div>
       <!-- Resource Grid -->
       <div class="resource-area">
-        <h2 class="category-title">
-          {{ getCategoryTitle(activeCategory) }}
-        </h2>
+        <div class="category-hero">
+          <div class="hero-left">
+            <h2 class="category-title">
+              {{ getCategoryTitle(activeCategory) }}
+            </h2>
+            <div class="category-sub">
+              {{ currentCategoryDesc }}
+            </div>
+            <div class="category-chips">
+              <a-tag v-for="t in categoryTopTags" :key="t" size="small" color="arcoblue" class="chip">
+                {{ t }}
+              </a-tag>
+            </div>
+          </div>
+          <div class="hero-right">
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <IconApps />
+                </div>
+                <div class="stat-main">
+                  <div class="stat-value">
+                    {{ categoryCount }}
+                  </div>
+                  <div class="stat-label">
+                    当前分类资源
+                  </div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <IconCloud />
+                </div>
+                <div class="stat-main">
+                  <div class="stat-value">
+                    国内 {{ categorySourceCount.domestic }} / 国外 {{ categorySourceCount.foreign }}
+                  </div>
+                  <div class="stat-label">
+                    来源分布
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="featuredResources.length" class="featured-row">
+          <div
+            v-for="fr in featuredResources"
+            :key="fr.title"
+            class="featured-card"
+            @click="openResource(fr)"
+          >
+            <div class="featured-main">
+              <div class="featured-title">
+                {{ fr.title }}
+              </div>
+              <div class="featured-desc">
+                {{ fr.desc }}
+              </div>
+              <div class="featured-meta">
+                <a-tag size="small" :color="getSource(fr) === '国内' ? 'green' : 'purple'">
+                  {{ getSource(fr) }}
+                </a-tag>
+                <span class="meta-text">{{ formatSizeMB(fr) }}</span>
+              </div>
+            </div>
+            <a-button type="primary" size="small" class="featured-btn" @click.stop="openResourceLink(fr)">
+              <template #icon>
+                <IconDownload />
+              </template>
+              获取
+            </a-button>
+          </div>
+        </div>
+
         <div class="resource-grid">
           <div
-            v-for="(res, idx) in resources[activeCategory] || []"
-            :key="idx"
+            v-for="res in displayedResources"
+            :key="res.title"
             class="resource-card"
             @click="openResource(res)"
           >
@@ -338,10 +563,31 @@ function handleDownload() {
                   {{ tag }}
                 </a-tag>
               </div>
+
+              <div class="meta-row">
+                <a-tag size="small" :color="getSource(res) === '国内' ? 'green' : 'purple'" class="source-tag">
+                  {{ getSource(res) }}
+                </a-tag>
+                <div class="platform-row">
+                  <span v-for="p in getPlatforms(res)" :key="p" class="platform-chip">
+                    <img v-if="getPlatformIcon(p)" class="platform-icon" :src="getPlatformIcon(p)" :alt="p">
+                    <span class="platform-text">{{ p }}</span>
+                  </span>
+                </div>
+                <span class="size-text">{{ formatSizeMB(res) }}</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <a-button type="primary" size="mini" class="download-btn" @click.stop="openResourceLink(res)">
+                <template #icon>
+                  <IconDownload />
+                </template>
+                获取
+              </a-button>
             </div>
           </div>
 
-          <div v-if="!resources[activeCategory]?.length" class="empty-category">
+          <div v-if="!categoryResources.length" class="empty-category">
             <a-empty description="该分类下暂无资源" />
           </div>
         </div>
@@ -359,7 +605,7 @@ function handleDownload() {
           <div class="modal-title-box">
             <h3>{{ currentResource.title }}</h3>
             <div class="tags">
-              <a-tag v-for="tag in currentResource.tags" :key="tag" size="small" color="arcoblue">
+              <a-tag v-for="tag in (currentResource.tags || [])" :key="tag" size="small" color="arcoblue">
                 {{ tag }}
               </a-tag>
             </div>
@@ -367,6 +613,34 @@ function handleDownload() {
         </div>
 
         <div class="modal-body">
+          <div class="modal-info-grid">
+            <div class="info-item">
+              <span class="label">资源来源</span>
+              <a-tag size="small" :color="getSource(currentResource) === '国内' ? 'green' : 'purple'">
+                {{ getSource(currentResource) }}
+              </a-tag>
+            </div>
+            <div class="info-item">
+              <span class="label">预估大小</span>
+              <span class="value">{{ formatSizeMB(currentResource) }}</span>
+            </div>
+            <div class="info-item full">
+              <span class="label">支持平台</span>
+              <div class="platform-row">
+                <span v-for="p in getPlatforms(currentResource)" :key="p" class="platform-chip">
+                  <img v-if="getPlatformIcon(p)" class="platform-icon" :src="getPlatformIcon(p)" :alt="p">
+                  <span class="platform-text">{{ p }}</span>
+                </span>
+              </div>
+            </div>
+            <div class="info-item full">
+              <span class="label">访问链接</span>
+              <a :href="currentResource.url" target="_blank" class="link-text">
+                {{ currentResource.url }}
+              </a>
+            </div>
+          </div>
+
           <p class="modal-desc">
             {{ currentResource.desc }}
           </p>
@@ -374,6 +648,20 @@ function handleDownload() {
           <div v-if="currentResource.details" class="modal-details">
             <h4>详细介绍</h4>
             <p>{{ currentResource.details }}</p>
+          </div>
+
+          <div class="modal-section">
+            <h4>快速开始</h4>
+            <div class="steps-wrap">
+              <a-steps :current="1" label-placement="vertical" class="quick-steps">
+                <a-step
+                  v-for="s in quickSteps"
+                  :key="s.title"
+                  :title="s.title"
+                  :description="s.desc"
+                />
+              </a-steps>
+            </div>
           </div>
         </div>
 
@@ -392,13 +680,17 @@ function handleDownload() {
 
 <style scoped lang="less">
 .resources-view {
-  padding-top: 8px;
-  padding-bottom: 60px;
+  height: calc(100vh - 64px);
+  padding-top: 6px;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 14px;
 
   .page-title {
     text-align: center;
@@ -427,8 +719,10 @@ function handleDownload() {
 
 .main-content {
   display: flex;
-  gap: 30px;
-  min-height: 600px;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -440,9 +734,12 @@ function handleDownload() {
   flex-shrink: 0;
   background: var(--color-bg-2);
   border-radius: 8px;
-  padding: 16px 0;
+  padding: 12px 0;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   height: fit-content;
+  position: sticky;
+  top: 10px;
+  align-self: flex-start;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -497,40 +794,217 @@ function handleDownload() {
   flex: 1;
   background: var(--color-bg-2);
   border-radius: 8px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   height: 100%;
   overflow-y: auto;
+  min-height: 0;
+}
+
+.resource-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.resource-area::-webkit-scrollbar-thumb {
+  background: rgba(var(--primary-6), 0.45);
+  border-radius: 999px;
+}
+
+.resource-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--primary-6), 0.65);
+}
+
+.category-hero {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  padding: 18px 18px;
+  background:
+    radial-gradient(900px 360px at 10% 0%, rgba(var(--primary-6), 0.14), transparent 55%),
+    radial-gradient(700px 320px at 90% 30%, rgba(var(--primary-6), 0.1), transparent 55%), #fff;
+  margin-bottom: 18px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-left {
+  min-width: 0;
 }
 
 .category-title {
   font-size: 20px;
-  margin-bottom: 24px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-border-1);
+  margin: 0;
   color: var(--color-text-1);
+}
+
+.category-sub {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text-3);
+}
+
+.category-chips {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border-radius: 999px;
+}
+
+.hero-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.stat-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 12px 12px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(var(--primary-6), 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+}
+
+.stat-main {
+  min-width: 0;
+}
+
+.stat-value {
+  font-weight: 800;
+  color: var(--color-text-1);
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-label {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.featured-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.featured-card {
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  padding: 14px 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.25s;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--primary-6));
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.featured-main {
+  min-width: 0;
+}
+
+.featured-title {
+  font-weight: 800;
+  color: var(--color-text-1);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.featured-desc {
+  margin-top: 8px;
+  color: var(--color-text-3);
+  font-size: 12px;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.featured-meta {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.meta-text {
+  color: var(--color-text-3);
+  font-size: 12px;
+}
+
+.featured-btn {
+  border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .resource-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 14px;
 }
 
 .resource-card {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 16px;
+  padding: 14px;
   border: 1px solid var(--color-border-2);
-  border-radius: 8px;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.3s;
   background: #fff;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
     border-color: rgb(var(--primary-6));
   }
 
@@ -574,7 +1048,6 @@ function handleDownload() {
       -webkit-box-orient: vertical;
       line-clamp: 2;
       overflow: hidden;
-      height: 38px;
     }
 
     .tags {
@@ -583,6 +1056,63 @@ function handleDownload() {
       gap: 6px;
     }
   }
+}
+
+.meta-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.source-tag {
+  border-radius: 999px;
+}
+
+.platform-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.platform-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+  font-size: 12px;
+  color: var(--color-text-2);
+}
+
+.platform-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.platform-text {
+  line-height: 1;
+}
+
+.size-text {
+  margin-left: auto;
+  color: var(--color-text-3);
+  font-size: 12px;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.download-btn {
+  border-radius: 999px;
 }
 
 .empty-category {
@@ -634,6 +1164,57 @@ function handleDownload() {
 .modal-body {
   margin-bottom: 24px;
 
+  .modal-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 12px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border-2);
+    background: var(--color-fill-1);
+    margin-bottom: 18px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+
+      &.full {
+        grid-column: 1 / -1;
+        align-items: flex-start;
+      }
+    }
+
+    .label {
+      color: var(--color-text-3);
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .value {
+      color: var(--color-text-1);
+      font-weight: 700;
+      font-size: 12px;
+    }
+  }
+
+  .link-text {
+    color: var(--primary-color);
+    text-decoration: none;
+    word-break: break-all;
+    font-size: 12px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .modal-desc {
     font-size: 16px;
     color: var(--color-text-2);
@@ -659,5 +1240,33 @@ function handleDownload() {
       line-height: 1.6;
     }
   }
+}
+
+.modal-section {
+  margin-top: 18px;
+
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    color: var(--color-text-1);
+  }
+}
+
+.steps-wrap {
+  border: 1px solid var(--color-border-2);
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 10px;
+}
+
+.quick-steps {
+  :deep(.arco-steps-item-title) {
+    font-weight: 800;
+  }
+}
+
+.modal-footer-action {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-1);
 }
 </style>

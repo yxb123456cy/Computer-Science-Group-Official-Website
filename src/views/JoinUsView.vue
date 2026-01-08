@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {
   IconCheckCircle,
+  IconClockCircle,
   IconMessage,
   IconUserAdd,
 } from '@arco-design/web-vue/es/icon'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const activeKey = ref(['1'])
 
@@ -49,6 +50,27 @@ const departments = [
     ],
   },
 ]
+
+const deptCount = computed(() => departments.length)
+const faqCount = computed(() => faqs.length)
+const benefits = [
+  {
+    title: '项目实战',
+    desc: '参与真实项目迭代，沉淀作品集与工程经验。',
+  },
+  {
+    title: '竞赛提升',
+    desc: '组队备赛，完善题解与复盘，冲刺更高奖项。',
+  },
+  {
+    title: '技术分享',
+    desc: '定期开展分享与Workshop，快速掌握热门技术栈。',
+  },
+  {
+    title: '资源支持',
+    desc: '获取学习路线、工具资源与社团内部经验沉淀。',
+  },
+]
 </script>
 
 <template>
@@ -61,6 +83,77 @@ const departments = [
         寻找志同道合的你，一起探索技术的星辰大海
       </p>
     </div>
+
+    <div class="hero-strip">
+      <div class="hero-left">
+        <div class="hero-title">
+          一起做项目、打比赛、结识同路人
+        </div>
+        <div class="hero-sub">
+          不限专业与基础，重视学习热情与成长心态
+        </div>
+        <div class="hero-actions">
+          <a-button type="primary" shape="round" size="large" class="hero-btn">
+            填写在线报名表
+          </a-button>
+          <a-button shape="round" size="large" class="hero-btn secondary">
+            加入招新群
+          </a-button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value">
+              {{ deptCount }}
+            </div>
+            <div class="stat-label">
+              招新部门
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">
+              4
+            </div>
+            <div class="stat-label">
+              加入步骤
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">
+              {{ faqCount }}
+            </div>
+            <div class="stat-label">
+              常见问题
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">
+              全年
+            </div>
+            <div class="stat-label">
+              常态化招新
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="section">
+      <h2 class="section-title">
+        加入权益
+      </h2>
+      <div class="benefit-grid">
+        <div v-for="b in benefits" :key="b.title" class="benefit-card">
+          <div class="benefit-title">
+            {{ b.title }}
+          </div>
+          <div class="benefit-desc">
+            {{ b.desc }}
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Recruit Info -->
     <div class="recruit-info">
@@ -105,7 +198,7 @@ const departments = [
         加入流程
       </h2>
       <div class="process-steps">
-        <a-steps :current="1" label-placement="vertical">
+        <a-steps :current="1" label-placement="vertical" class="join-steps">
           <a-step title="在线报名" description="填写报名表" />
           <a-step title="加入招新群" description="获取最新通知" />
           <a-step title="面试交流" description="双向了解" />
@@ -144,7 +237,7 @@ const departments = [
 
 <style scoped lang="less">
 .join-view {
-  padding-top: 40px;
+  padding-top: 8px;
   padding-bottom: 60px;
 }
 
@@ -153,10 +246,21 @@ const departments = [
   margin-bottom: 50px;
 
   .page-title {
-    font-size: 36px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--color-text-1);
     margin-bottom: 12px;
+    position: relative;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 6px;
+      background: var(--primary-color);
+      margin: 10px auto 0;
+      border-radius: 3px;
+    }
   }
 
   .page-desc {
@@ -170,35 +274,166 @@ const departments = [
 }
 
 .section-title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 30px;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--color-text-1);
+  padding-left: 10px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.hero-strip {
+  display: grid;
+  grid-template-columns: 1fr 520px;
+  gap: 18px;
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  padding: 20px 20px;
+  background:
+    radial-gradient(1000px 420px at 20% 0%, rgba(var(--primary-6), 0.16), transparent 55%),
+    radial-gradient(700px 340px at 90% 30%, rgba(var(--primary-6), 0.1), transparent 55%), #fff;
+  margin-bottom: 26px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-1);
+  line-height: 1.25;
+}
+
+.hero-sub {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--color-text-3);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+.hero-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  padding: 0 22px;
+}
+
+.hero-btn.secondary {
+  border-radius: 999px;
+}
+
+.hero-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.stat-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 12px 12px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-1);
+  line-height: 1.1;
+}
+
+.stat-label {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-3);
 }
 
 /* Recruit Info */
 .recruit-info {
   display: flex;
   gap: 24px;
-  margin-bottom: 60px;
+  margin-bottom: 26px;
 
   @media (max-width: 768px) {
     flex-direction: column;
   }
 }
 
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.benefit-card {
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  padding: 16px 16px;
+  background: #fff;
+  transition: all 0.25s;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--primary-6));
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
+  }
+}
+
+.benefit-title {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-text-1);
+}
+
+.benefit-desc {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--color-text-3);
+  line-height: 1.7;
+}
+
 .info-card {
   flex: 1;
   background: #fff;
-  padding: 30px;
-  border-radius: 12px;
+  padding: 22px;
+  border-radius: 14px;
   border: 1px solid var(--color-border-2);
   text-align: center;
+  transition: all 0.25s;
 
   &.highlight {
-    background: linear-gradient(135deg, #e8f3ff 0%, #ffffff 100%);
-    border-color: #bacefd;
+    background: radial-gradient(700px 260px at 10% 0%, rgba(var(--primary-6), 0.18), transparent 55%), #fff;
+    border-color: rgba(var(--primary-6), 0.35);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.07);
   }
 
   .card-title {
@@ -265,8 +500,15 @@ const departments = [
   max-width: 800px;
   margin: 0 auto;
   background: #fff;
-  padding: 40px;
-  border-radius: 12px;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border-2);
+}
+
+.join-steps {
+  :deep(.arco-steps-item-title) {
+    font-weight: 800;
+  }
 }
 
 /* Join Action */
@@ -275,7 +517,8 @@ const departments = [
 }
 
 .action-card {
-  background: var(--color-fill-2);
+  background:
+    radial-gradient(900px 320px at 10% 10%, rgba(var(--primary-6), 0.16), transparent 55%), var(--color-fill-2);
   border-radius: 16px;
   padding: 40px;
   text-align: center;

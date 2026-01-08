@@ -68,6 +68,15 @@ const router = createRouter({
       name: 'tool',
       component: () => import('../views/OnlineToolsView.vue'),
     },
+    {
+      path: '/admin/login',
+      name: 'admin-login',
+      component: () => import('../views/admin/login/login.vue'),
+      meta: {
+        hideFooter: true,
+        hideNavBar: true,
+      },
+    },
     // 404
     {
       path: '/:pathMatch(.*)*',

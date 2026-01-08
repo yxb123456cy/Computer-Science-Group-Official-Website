@@ -1,5 +1,3 @@
-import type { VueElement } from 'vue'
-
 /**
  * @description 轮播图项 首页走马灯配置
  */

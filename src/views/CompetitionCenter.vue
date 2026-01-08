@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import {
+  IconBulb,
   IconCalendar,
+  IconCheckCircle,
+  IconCode,
   IconLink,
   IconTrophy,
   IconUserGroup,
@@ -21,6 +24,8 @@ interface Competition {
   url: string
   details: string
   tags: string[]
+  isMoE84: boolean
+  scholarshipEligible: boolean
   difficulty?: string
   recommendMajor?: string
   value?: string
@@ -38,6 +43,8 @@ const competitions: Competition[] = [
     url: 'https://icpc.global/',
     details: 'ICPC 竞赛形式为团队赛，每队由 3 名队员组成。比赛期间，参赛队伍需要在 5 小时内解决 10-13 道算法题目。题目内容涵盖算法、数据结构、数学等多个领域。比赛强调团队协作、算法设计和编程实现能力。',
     tags: ['算法', '团队', 'C/C++', 'Java', 'Python'],
+    isMoE84: true,
+    scholarshipEligible: true,
     difficulty: '⭐⭐⭐⭐⭐',
     recommendMajor: '计算机/软件',
     value: '⭐⭐⭐⭐⭐',
@@ -53,6 +60,8 @@ const competitions: Competition[] = [
     url: 'https://dasai.lanqiao.cn/',
     details: '蓝桥杯大赛分为个人赛和团队赛，涵盖 C/C++ 程序设计、Java 软件开发、Python 程序设计、Web 应用开发等多个科目。比赛注重基础编程能力和算法应用能力，是国内参与人数最多的计算机竞赛之一。',
     tags: ['算法', '个人', 'Java', 'C/C++', 'Python', 'Web'],
+    isMoE84: true,
+    scholarshipEligible: true,
     difficulty: '⭐⭐⭐',
     recommendMajor: '计算机相关',
     value: '⭐⭐⭐⭐',
@@ -68,6 +77,8 @@ const competitions: Competition[] = [
     url: 'http://jsjds.blcu.edu.cn/',
     details: '大赛作品内容分为软件应用与开发、微课与教学辅助、物联网应用、大数据应用、人工智能应用等多个类别。比赛形式为作品提交 + 现场答辩，强调创新能力和实际应用能力。',
     tags: ['创新', '项目', '答辩', '全栈'],
+    isMoE84: true,
+    scholarshipEligible: true,
     difficulty: '⭐⭐⭐',
     recommendMajor: '不限',
     value: '⭐⭐⭐⭐',
@@ -122,6 +133,36 @@ function handleCancel() {
 function openOfficialSite(url: string) {
   window.open(url, '_blank')
 }
+
+const totalCount = computed(() => competitions.length)
+const currentCount = computed(() => filteredCompetitions.value.length)
+const topTags = computed(() => {
+  const counter = new Map<string, number>()
+  competitions.forEach((c) => {
+    c.tags.forEach((t) => {
+      counter.set(t, (counter.get(t) || 0) + 1)
+    })
+  })
+  return [...counter.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([t]) => t)
+})
+
+const participationMode = computed(() => {
+  const tags = currentCompetition.tags || []
+  if (tags.includes('团队'))
+    return '团队赛'
+  if (tags.includes('个人'))
+    return '个人赛'
+  return '待公布'
+})
+
+const languageTags = computed(() => {
+  const tags = currentCompetition.tags || []
+  const allow = new Set(['C/C++', 'Java', 'Python', 'Web', 'Go', 'Rust', 'JavaScript', 'TypeScript'])
+  return tags.filter(t => allow.has(t))
+})
 </script>
 
 <template>
@@ -135,6 +176,78 @@ function openOfficialSite(url: string) {
       </p>
     </div>
 
+    <div class="hero-strip">
+      <div class="hero-left">
+        <div class="hero-title">
+          快速筛选，找到最适合你的赛道
+        </div>
+        <div class="hero-sub">
+          覆盖算法、项目、AI、大数据等方向，适合不同基础的同学参与备赛
+        </div>
+        <div class="hero-chips">
+          <a-tag v-for="t in topTags" :key="t" color="arcoblue" class="chip">
+            {{ t }}
+          </a-tag>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <IconTrophy />
+            </div>
+            <div class="stat-main">
+              <div class="stat-value">
+                {{ totalCount }}
+              </div>
+              <div class="stat-label">
+                收录赛事
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <IconCheckCircle />
+            </div>
+            <div class="stat-main">
+              <div class="stat-value">
+                {{ currentCount }}
+              </div>
+              <div class="stat-label">
+                当前可选
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <IconBulb />
+            </div>
+            <div class="stat-main">
+              <div class="stat-value">
+                {{ activeCategory }}
+              </div>
+              <div class="stat-label">
+                当前分类
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <IconCode />
+            </div>
+            <div class="stat-main">
+              <div class="stat-value">
+                备赛
+              </div>
+              <div class="stat-label">
+                建议尽早
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Filter & Search -->
     <div class="filter-section">
       <div class="category-tabs">
@@ -145,30 +258,51 @@ function openOfficialSite(url: string) {
         </a-radio-group>
       </div>
       <div class="search-box">
-        <a-input-search
-          v-model="searchQuery"
-          placeholder="搜索竞赛..."
-          style="width: 260px;background-color: snow;"
-          allow-clear
-        />
+        <div class="search-meta">
+          <span class="count-text">共 {{ currentCount }} 项</span>
+          <a-input-search
+            v-model="searchQuery"
+            placeholder="搜索竞赛..."
+            style="width: 280px"
+            allow-clear
+          />
+        </div>
       </div>
     </div>
 
     <div v-if="filteredCompetitions.length > 0" class="competition-list">
-      <div v-for="comp in filteredCompetitions" :key="comp.id" class="competition-item compact">
+      <div v-for="comp in filteredCompetitions" :key="comp.id" class="competition-item">
         <div class="item-cover" :style="{ backgroundImage: `url(${comp.image})` }" />
         <div class="item-content">
           <div class="content-header">
             <h2 class="item-title">
               {{ comp.title }}
             </h2>
-            <a-tag color="orangered" size="small" class="level-tag">
+            <a-tag color="orangered" size="small">
               {{ comp.level }}
+            </a-tag>
+            <a-tag size="small" :color="comp.isMoE84 ? 'green' : 'gray'">
+              {{ comp.isMoE84 ? '教育部认可84项' : '非教育部84项' }}
             </a-tag>
           </div>
 
+          <div class="quick-metrics">
+            <div class="metric">
+              <span class="metric-label">难度</span>
+              <span class="metric-value">{{ comp.difficulty || '-' }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">含金量</span>
+              <span class="metric-value gold">{{ comp.value || '-' }}</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">推荐专业</span>
+              <span class="metric-value">{{ comp.recommendMajor || '-' }}</span>
+            </div>
+          </div>
+
           <div class="tags-row">
-            <a-tag v-for="tag in comp.tags" :key="tag" size="small" color="arcoblue" class="tag-item">
+            <a-tag v-for="tag in comp.tags" :key="tag" size="small" color="arcoblue">
               {{ tag }}
             </a-tag>
           </div>
@@ -211,7 +345,7 @@ function openOfficialSite(url: string) {
 
     <a-drawer
       :visible="visible"
-      :width="500"
+      :width="1000"
       unmount-on-close
       ok-text="关闭"
       :hide-cancel="true"
@@ -222,11 +356,34 @@ function openOfficialSite(url: string) {
         {{ currentCompetition.title }}
       </template>
       <div class="drawer-content">
+        <div class="drawer-hero">
+          <div class="drawer-hero-cover" :style="{ backgroundImage: currentCompetition.image ? `url(${currentCompetition.image})` : '' }" />
+          <div class="drawer-hero-main">
+            <div class="drawer-hero-title">
+              {{ currentCompetition.title }}
+            </div>
+            <div class="drawer-hero-sub">
+              {{ currentCompetition.description }}
+            </div>
+            <div class="drawer-hero-tags">
+              <a-tag v-for="tag in (currentCompetition.tags || []).slice(0, 8)" :key="tag" color="arcoblue" class="chip">
+                {{ tag }}
+              </a-tag>
+            </div>
+          </div>
+        </div>
+
         <div class="info-grid">
           <div class="info-item">
             <span class="label">竞赛级别：</span>
             <a-tag color="orangered">
               {{ currentCompetition.level }}
+            </a-tag>
+          </div>
+          <div class="info-item">
+            <span class="label">教育部84项：</span>
+            <a-tag :color="currentCompetition.isMoE84 ? 'green' : 'gray'">
+              {{ currentCompetition.isMoE84 ? '是' : '否' }}
             </a-tag>
           </div>
           <div class="info-item">
@@ -249,7 +406,23 @@ function openOfficialSite(url: string) {
             <span class="label">含金量：</span>
             <span class="value" style="color: #FFB400;">{{ currentCompetition.value || '-' }}</span>
           </div>
+          <div class="info-item">
+            <span class="label">参赛形式：</span>
+            <span class="value">{{ participationMode }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">适用语言：</span>
+            <span class="value">{{ languageTags.length ? languageTags.join(' / ') : '不限' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">奖学金评比：</span>
+            <a-tag :color="currentCompetition.scholarshipEligible ? 'orange' : 'gray'">
+              {{ currentCompetition.scholarshipEligible ? '参与单项奖学金评比' : '不参与' }}
+            </a-tag>
+          </div>
         </div>
+
+        <a-divider />
 
         <a-divider />
 
@@ -258,10 +431,44 @@ function openOfficialSite(url: string) {
           <p>{{ currentCompetition.details }}</p>
         </div>
 
+        <a-divider />
+
+        <div class="drawer-section">
+          <div class="section-title">
+            备赛建议
+          </div>
+          <div class="tips-grid">
+            <div class="tip-card">
+              <div class="tip-title">
+                建议 1
+              </div>
+              <div class="tip-text">
+                先明确目标：冲奖/练手/项目沉淀，再选择合适赛道。
+              </div>
+            </div>
+            <div class="tip-card">
+              <div class="tip-title">
+                建议 2
+              </div>
+              <div class="tip-text">
+                关注官方通知节点，提前规划时间线，避免临时赶工。
+              </div>
+            </div>
+            <div class="tip-card">
+              <div class="tip-title">
+                建议 3
+              </div>
+              <div class="tip-text">
+                沉淀可复用成果：题解、模板、作品文档与演示视频。
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="tags-section">
           <h3>相关标签</h3>
           <div class="tags-row">
-            <a-tag v-for="tag in currentCompetition.tags" :key="tag" color="arcoblue">
+            <a-tag v-for="tag in (currentCompetition.tags || [])" :key="tag" color="arcoblue">
               {{ tag }}
             </a-tag>
           </div>
@@ -316,6 +523,110 @@ function openOfficialSite(url: string) {
   }
 }
 
+.hero-strip {
+  display: grid;
+  grid-template-columns: 1fr 520px;
+  gap: 22px;
+  background:
+    radial-gradient(1200px 500px at 20% 10%, rgba(var(--primary-6), 0.18), transparent 55%),
+    radial-gradient(900px 420px at 90% 20%, rgba(var(--primary-6), 0.12), transparent 50%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), #fff);
+  border: 1px solid var(--color-border-2);
+  border-radius: 14px;
+  padding: 22px 22px;
+  margin-bottom: 26px;
+  overflow: hidden;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-left {
+  padding: 6px 8px;
+}
+
+.hero-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-1);
+  line-height: 1.25;
+}
+
+.hero-sub {
+  margin-top: 10px;
+  color: var(--color-text-3);
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+.hero-chips {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border-radius: 999px;
+}
+
+.hero-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.stat-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+  padding: 14px 14px;
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(var(--primary-6), 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(var(--primary-6));
+  flex-shrink: 0;
+}
+
+.stat-main {
+  min-width: 0;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text-1);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-label {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
 .filter-section {
   display: flex;
   justify-content: space-between;
@@ -337,6 +648,19 @@ function openOfficialSite(url: string) {
   }
 }
 
+.search-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.count-text {
+  color: var(--color-text-3);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .competition-list {
   display: flex;
   flex-direction: column;
@@ -346,7 +670,7 @@ function openOfficialSite(url: string) {
 .competition-item {
   display: flex;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 14px;
   padding: 16px;
   gap: 20px;
   transition: all 0.3s;
@@ -368,13 +692,30 @@ function openOfficialSite(url: string) {
   height: 120px;
   background-size: cover;
   background-position: center;
-  border-radius: 6px;
+  border-radius: 12px;
   flex-shrink: 0;
   background-color: var(--color-fill-2);
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.35));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
 
   @media (max-width: 768px) {
     width: 100%;
     height: 160px;
+  }
+}
+
+.competition-item:hover {
+  .item-cover::after {
+    opacity: 1;
   }
 }
 
@@ -400,6 +741,47 @@ function openOfficialSite(url: string) {
     margin: 0;
     line-height: 1.4;
   }
+}
+
+.quick-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric {
+  border: 1px solid var(--color-border-2);
+  background: var(--color-fill-1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.metric-label {
+  color: var(--color-text-3);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.metric-value {
+  color: var(--color-text-1);
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric-value.gold {
+  color: #ffb400;
 }
 
 .tags-row {
@@ -466,6 +848,52 @@ function openOfficialSite(url: string) {
 }
 
 .drawer-content {
+  .drawer-hero {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .drawer-hero-cover {
+    width: 100%;
+    height: 110px;
+    border-radius: 12px;
+    background: var(--color-fill-2);
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--color-border-2);
+  }
+
+  .drawer-hero-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--color-text-1);
+    line-height: 1.35;
+  }
+
+  .drawer-hero-sub {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--color-text-3);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+
+  .drawer-hero-tags {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   .info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -494,6 +922,17 @@ function openOfficialSite(url: string) {
     }
   }
 
+  .drawer-section {
+    margin: 4px 0;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--color-text-1);
+    margin-bottom: 12px;
+  }
+
   .details-text {
     h3 {
       margin-bottom: 12px;
@@ -515,6 +954,36 @@ function openOfficialSite(url: string) {
       margin-bottom: 12px;
       color: var(--color-text-1);
     }
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tip-card {
+    border: 1px solid var(--color-border-2);
+    border-radius: 12px;
+    background: var(--color-fill-1);
+    padding: 12px 12px;
+  }
+
+  .tip-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--color-text-1);
+  }
+
+  .tip-text {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--color-text-3);
   }
 
   .official-link-box {
